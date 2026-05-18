@@ -2,7 +2,7 @@
 
 ## Overview
 
-ROCAP is a theoretically-grounded and operationally-aligned Reference Ontology of Cybersecurity Attack Planning designed to bridge the structural gap in existing security ontologies. While current frameworks represent the traces or execution graphs of an intrusion (what could happen or what did happen), ROC&P formally models the attack plan as an independent intentional entity. It explicitly captures an attacker’s subjective commitment to a sequence of ordered steps before or independent of execution.
+ROCAP is a theoretically-grounded and operationally-aligned Reference Ontology of Cybersecurity Attack Planning designed to bridge the structural gap in existing security ontologies. While current frameworks represent the traces or execution graphs of an intrusion (what could happen or what did happen), ROCAP formally models the attack plan as an independent intentional entity. It explicitly captures an attacker’s subjective commitment to a sequence of ordered steps before or independent of execution.
 
 ---
 
