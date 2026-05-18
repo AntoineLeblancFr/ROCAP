@@ -1,33 +1,15 @@
 % =====================================================================
 % example_blacksuit.pl
 %
-% ROCA / COVER instance model -- "Fake Zoom -> BlackSuit Ransomware",
+% ROCA instance model -- "Fake Zoom -> BlackSuit Ransomware",
 % extended with a second, long-term espionage attack plan.
 % Source scenario: thedfirreport.com/2025/03/31/fake-zoom-ends-in-blacksuit-ransomware
-%
-% Loads the meta-model, then asserts the scenario as object/1 + link/1
-% dict facts, and finally defines the competency-question queries CQ1-CQ15.
 %
 % Dict shapes (tag-reference style, matching meta-model.pl):
 %   object dict   Tag{classes:[ClassTag...], name:String [, attr:Value...]}
 %   slot  dict    RoleTag{value:ObjectTag}
 %   link  dict    Tag{assoc:AssocTag, slots:[SlotDict,SlotDict]}
-%
-% NOTE 1 -- the link dict carries an explicit `assoc:` field, since the
-%   meta-model reuses role names across associations.
-% NOTE 2 -- six associations the CQs need (planComposition, intentionCausation,
-%   weakens, exploits, performsPlan, hasCapability) are supplied as a separate
-%   addendum for meta-model.pl; the links here already carry their assoc tags.
-% NOTE 3 -- likelihood (plan) and risk level (assessment) are object attribute
-%   slots; the model has no quantitative risk calculus.
-% NOTE 4 -- TWO attack plans are modelled: `blacksuitPlan` (ransomware) and
-%   `espionagePlan` (long-term espionage).  They SHARE their first three
-%   attack steps.  Each attackPlan carries an ordered `steps` list -- the
-%   historical-dependence chain of its attack steps -- so CQ7 can match an
-%   observed trace as an ordered PREFIX of a plan and return what is still
-%   anticipated.
-% NOTE 5 -- CQ4..CQ8 return a single COMPACT answer dict (object tags), so an
-%   answer reads as one short term suitable for inspection or reporting.
+
 % =====================================================================
 
 :- consult('meta-model.pl').
@@ -37,11 +19,11 @@
 % =====================================================================
 
 % --- Supporting assets / business asset ---
-object(emp01{classes: [supportingAsset, humanResource], name: "Help-desk Employee"}).
-object(ws01{classes: [supportingAsset, d3fClientComputer], name: "Employee Workstation"}).
-object(fs01{classes: [supportingAsset, d3fFileServer], name: "Corporate File Server"}).
-object(installer01{classes: [supportingAsset, d3fApplicationInstaller], name: "Fake Zoom Installer (SectopRAT dropper)"}).
-object(corpData{classes: [businessAsset], name: "Corporate Data"}).
+object(employee{classes: [supportingAsset, humanResource], name: "Help-desk Employee"}).
+object(workstation{classes: [supportingAsset, d3fClientComputer], name: "Employee Workstation"}).
+object(fileServer{classes: [supportingAsset, d3fFileServer], name: "Corporate File Server"}).
+object(applicationInstaller{classes: [supportingAsset, d3fApplicationInstaller], name: "Fake Zoom Installer (SectopRAT dropper)"}).
+object(itDepartment{classes: [businessAsset], name: "Corporate Data"}).
 % --- Cybersecurity value components & protected subject ---
 object(confidentiality{classes: [cybersecurityValueComponent], name: "Confidentiality of Corporate Data"}).
 object(integrity{classes: [cybersecurityValueComponent], name: "Integrity of Corporate Data"}).
@@ -65,10 +47,10 @@ object(atk_encrypt{classes: [attack, dataEncryptedForImpactT1486], name: "Data E
 object(atk_exfil{classes: [attack, exfiltrationOverWebServiceT1567], name: "Exfiltration to Bublup Cloud Storage"}).
 object(atk_espcollect{classes: [attack, dataFromLocalSystemT1005], name: "Recurring Intelligence Collection"}).
 % --- Threat actors, capabilities, attack plans ---
-object(attacker01{classes: [attacker], name: "BlackSuit Ransomware Operator"}).
+object(blacksuitAttacker{classes: [attacker], name: "BlackSuit Ransomware Operator"}).
 object(cap01{classes: [threatCapability], name: "Ransomware Deployment and Extortion Capability"}).
 object(blacksuitPlan{classes: [attackPlan], name: "BlackSuit Ransomware Campaign (Fake Zoom Vector)", likelihood: likely, steps: [atk_driveby, atk_c2, atk_autostart, atk_filediscovery, atk_collect, atk_archive, atk_encrypt]}).
-object(attacker02{classes: [attacker], name: "Espionage Threat Actor"}).
+object(espionageAttacker{classes: [attacker], name: "Espionage Threat Actor"}).
 object(cap02{classes: [threatCapability], name: "Stealthy Long-Term Access Capability"}).
 object(espionagePlan{classes: [attackPlan], name: "Long-Term Espionage Campaign", likelihood: possible, steps: [atk_driveby, atk_c2, atk_autostart, atk_espcollect]}).
 % --- Closed intentions composing the BlackSuit plan ---
@@ -96,31 +78,31 @@ object(era01{classes: [experienceRiskAssessment], name: "BlackSuit Ransomware Ri
 
 
 % --- Supporting assets offensively engaged by attacks ---
-link(l_offensivelyEngagedBy_1{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: emp01}, offensivelyEngages{value: atk_driveby}]}).
-link(l_offensivelyEngagedBy_2{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: installer01}, offensivelyEngages{value: atk_driveby}]}).
-link(l_offensivelyEngagedBy_3{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_driveby}]}).
-link(l_offensivelyEngagedBy_4{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_c2}]}).
-link(l_offensivelyEngagedBy_5{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_autostart}]}).
-link(l_offensivelyEngagedBy_6{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_procinj}]}).
-link(l_offensivelyEngagedBy_7{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_hidefiles}]}).
-link(l_offensivelyEngagedBy_8{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: ws01}, offensivelyEngages{value: atk_exclusions}]}).
-link(l_offensivelyEngagedBy_9{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_filediscovery}]}).
-link(l_offensivelyEngagedBy_10{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_filediscovery2}]}).
-link(l_offensivelyEngagedBy_11{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_collect}]}).
-link(l_offensivelyEngagedBy_12{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_archive}]}).
-link(l_offensivelyEngagedBy_13{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_encrypt}]}).
-link(l_offensivelyEngagedBy_14{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_exfil}]}).
-link(l_offensivelyEngagedBy_15{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fs01}, offensivelyEngages{value: atk_espcollect}]}).
+link(l_offensivelyEngagedBy_1{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: employee}, offensivelyEngages{value: atk_driveby}]}).
+link(l_offensivelyEngagedBy_2{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: applicationInstaller}, offensivelyEngages{value: atk_driveby}]}).
+link(l_offensivelyEngagedBy_3{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_driveby}]}).
+link(l_offensivelyEngagedBy_4{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_c2}]}).
+link(l_offensivelyEngagedBy_5{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_autostart}]}).
+link(l_offensivelyEngagedBy_6{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_procinj}]}).
+link(l_offensivelyEngagedBy_7{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_hidefiles}]}).
+link(l_offensivelyEngagedBy_8{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: workstation}, offensivelyEngages{value: atk_exclusions}]}).
+link(l_offensivelyEngagedBy_9{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_filediscovery}]}).
+link(l_offensivelyEngagedBy_10{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_filediscovery2}]}).
+link(l_offensivelyEngagedBy_11{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_collect}]}).
+link(l_offensivelyEngagedBy_12{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_archive}]}).
+link(l_offensivelyEngagedBy_13{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_encrypt}]}).
+link(l_offensivelyEngagedBy_14{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_exfil}]}).
+link(l_offensivelyEngagedBy_15{assoc: offensivelyEngagedBy, slots: [offensivelyEngagedBy{value: fileServer}, offensivelyEngages{value: atk_espcollect}]}).
 
 % --- Supporting assets compose the business asset ---
-link(l_composes_1{assoc: composes, slots: [composes{value: emp01}, composedOf{value: corpData}]}).
-link(l_composes_2{assoc: composes, slots: [composes{value: ws01}, composedOf{value: corpData}]}).
-link(l_composes_3{assoc: composes, slots: [composes{value: fs01}, composedOf{value: corpData}]}).
+link(l_composes_1{assoc: composes, slots: [composes{value: employee}, composedOf{value: itDepartment}]}).
+link(l_composes_2{assoc: composes, slots: [composes{value: workstation}, composedOf{value: itDepartment}]}).
+link(l_composes_3{assoc: composes, slots: [composes{value: fileServer}, composedOf{value: itDepartment}]}).
 
 % --- Value components characterize the business asset ---
-link(l_characterizedBy_1{assoc: characterizedBy, slots: [characterizedBy{value: corpData}, characterizes{value: confidentiality}]}).
-link(l_characterizedBy_2{assoc: characterizedBy, slots: [characterizedBy{value: corpData}, characterizes{value: integrity}]}).
-link(l_characterizedBy_3{assoc: characterizedBy, slots: [characterizedBy{value: corpData}, characterizes{value: availability}]}).
+link(l_characterizedBy_1{assoc: characterizedBy, slots: [characterizedBy{value: itDepartment}, characterizes{value: confidentiality}]}).
+link(l_characterizedBy_2{assoc: characterizedBy, slots: [characterizedBy{value: itDepartment}, characterizes{value: integrity}]}).
+link(l_characterizedBy_3{assoc: characterizedBy, slots: [characterizedBy{value: itDepartment}, characterizes{value: availability}]}).
 
 % --- Protected subject externally depends on the value components ---
 link(l_externallyDependentedOn_1{assoc: externallyDependentedOn, slots: [externallyDependentedOn{value: confidentiality}, externallyDepends{value: organization}]}).
@@ -160,8 +142,8 @@ link(l_hurts_1{assoc: hurts, slots: [hurts{value: ls_unavail}, hurtBy{value: ava
 link(l_hurts_2{assoc: hurts, slots: [hurts{value: ls_disclosed}, hurtBy{value: confidentiality}]}).
 
 % --- Business asset participates in the loss events ---
-link(l_participatesIn_1{assoc: participatesIn, slots: [participatesIn{value: corpData}, hasParticipant{value: le_encrypt}]}).
-link(l_participatesIn_2{assoc: participatesIn, slots: [participatesIn{value: corpData}, hasParticipant{value: le_exfil}]}).
+link(l_participatesIn_1{assoc: participatesIn, slots: [participatesIn{value: itDepartment}, hasParticipant{value: le_encrypt}]}).
+link(l_participatesIn_2{assoc: participatesIn, slots: [participatesIn{value: itDepartment}, hasParticipant{value: le_exfil}]}).
 
 % --- Closed intentions compose the BlackSuit plan ---
 link(l_planComposition_1{assoc: planComposition, slots: [intentionPart{value: ci_foothold}, planWhole{value: blacksuitPlan}]}).
@@ -196,18 +178,16 @@ link(l_intentionCausation_15{assoc: intentionCausation, slots: [causingIntention
 link(l_intentionCausation_16{assoc: intentionCausation, slots: [causingIntention{value: ci_espCollect}, intendedAttack{value: atk_espcollect}]}).
 
 % --- Vulnerabilities weaken supporting assets ---
-link(l_weakens_1{assoc: weakens, slots: [weakeningVuln{value: vuln_socEng}, weakenedAsset{value: emp01}]}).
-link(l_weakens_2{assoc: weakens, slots: [weakeningVuln{value: vuln_autorun}, weakenedAsset{value: ws01}]}).
+link(l_weakens_1{assoc: weakens, slots: [weakeningVuln{value: vuln_socEng}, weakenedAsset{value: employee}]}).
 
 % --- Attacks exploit vulnerabilities ---
 link(l_exploits_1{assoc: exploits, slots: [exploitingAttack{value: atk_driveby}, exploitedVuln{value: vuln_socEng}]}).
-link(l_exploits_2{assoc: exploits, slots: [exploitingAttack{value: atk_autostart}, exploitedVuln{value: vuln_autorun}]}).
 
 % --- Attackers perform their plans / hold their capabilities ---
-link(l_performsPlan_1{assoc: performsPlan, slots: [performingAttacker{value: attacker01}, performedPlan{value: blacksuitPlan}]}).
-link(l_performsPlan_2{assoc: performsPlan, slots: [performingAttacker{value: attacker02}, performedPlan{value: espionagePlan}]}).
-link(l_hasCapability_1{assoc: hasCapability, slots: [capableAttacker{value: attacker01}, attackerCapability{value: cap01}]}).
-link(l_hasCapability_2{assoc: hasCapability, slots: [capableAttacker{value: attacker02}, attackerCapability{value: cap02}]}).
+link(l_performsPlan_1{assoc: performsPlan, slots: [performingAttacker{value: blacksuitAttacker}, performedPlan{value: blacksuitPlan}]}).
+link(l_performsPlan_2{assoc: performsPlan, slots: [performingAttacker{value: espionageAttacker}, performedPlan{value: espionagePlan}]}).
+link(l_hasCapability_1{assoc: hasCapability, slots: [capableAttacker{value: blacksuitAttacker}, attackerCapability{value: cap01}]}).
+link(l_hasCapability_2{assoc: hasCapability, slots: [capableAttacker{value: espionageAttacker}, attackerCapability{value: cap02}]}).
 
 
 % =====================================================================
@@ -255,30 +235,30 @@ show(Answer) :-
 
 % --- Asset identification (CQ1-CQ3) -- bare-tag answers ---
 
-% CQ1 (ID.AM-01/02/07) What are the organization's assets, and what types
+% CQ1  What are the organization's assets, and what types
 %      do they belong to?
 cq1(Asset, Type) :-
     object(D), is_dict(D, Asset),
     ( instanceOf(Asset, riskEnabler) ; instanceOf(Asset, objectAtRisk) ),
     objClasses(Asset, Classes), member(Type, Classes).
 
-% CQ2 (ID.AM-05) What cybersecurity value characterizes a given asset?
+% CQ2  What cybersecurity value characterizes a given asset?
 cq2(Asset, ValueComponent) :-
     biLink(characterizedBy, characterizedBy, Asset, characterizes, ValueComponent).
 
-% CQ3 (ID.AM-03) What dependency relationships exist between assets?
+% CQ3  What dependency relationships exist between assets?
 cq3(SupportingAsset, BusinessAsset) :-
     biLink(composes, composes, SupportingAsset, composedOf, BusinessAsset).
 
 % --- Threat source & attack plan (CQ4-CQ8) -- compact answer dicts ---
 
-% CQ4 (ISO 7.2.1, ID.RA-03) What threat sources and actors are identified
+% CQ4  What threat sources and actors are identified
 %      and associated?  One answer per actor: plan performed, capability held.
 cq4(Actor, cq4{actor:Actor, performs:Plan, capability:Capability}) :-
     biLink(performsPlan, performingAttacker, Actor, performedPlan, Plan),
     biLink(hasCapability, capableAttacker, Actor, attackerCapability, Capability).
 
-% CQ5 (ISO 7.2.1, ID.RA-02) What capabilities, intentions and objectives
+% CQ5  What capabilities, intentions and objectives
 %      characterize an attacker?
 cq5(Attacker, cq5{attacker:Attacker, capabilities:Capabilities,
                   intentions:Intentions}) :-
@@ -291,8 +271,8 @@ cq5(Attacker, cq5{attacker:Attacker, capabilities:Capabilities,
               biLink(planComposition, planWhole, Plan, intentionPart, I) ),
             Intentions).
 
-% CQ6 (ID.RA-02, DE.AE-07) What attack types, techniques and patterns
-%      compose a given plan?  Each step is paired with its ATT&CK technique.
+% CQ6  What attack types, techniques and patterns
+%      compose a given plan?  
 cq6(Plan, cq6{plan:Plan, steps:Steps}) :-
     instanceOf(Plan, attackPlan),
     findall(Attack-Technique,
@@ -301,16 +281,16 @@ cq6(Plan, cq6{plan:Plan, steps:Steps}) :-
               member(Technique, Classes), Technique \== attack ),
             Steps).
 
-% CQ7 (ISO 7.2.1, DE.AE, RS.AN) Given a partial trace -- an ordered list of
-%      observed attack steps -- which attack plans is the adversary carrying
-%      out?  A plan matches when the trace is an ordered PREFIX of its `steps`
-%      sequence; the steps still to come are returned as `anticipated`.
+% CQ7  Given a partial trace which attack 
+%      plans is the adversary carrying out?  A plan matches when 
+%      the trace is an ordered PREFIX of its `steps` sequence; the 
+%      steps still to come are returned as `anticipated`.
 cq7(Trace, cq7{plan:Plan, observed:Trace, anticipated:Anticipated}) :-
     object(P), is_dict(P, Plan), instanceOf(Plan, attackPlan),
     get_dict(steps, P, Steps),
     append(Trace, Anticipated, Steps).
 
-% CQ8 (ISO 7.2.1, DE.AE, RS.AN) Can identically looking attacks be told apart
+% CQ8  Can identically looking attacks be told apart
 %      by the adversary's goal?  Two distinct attacks of the SAME technique
 %      driven by DIFFERENT closed intentions.
 cq8(cq8{technique:Technique, attack1:A1, goal1:Goal1,
@@ -324,23 +304,23 @@ cq8(cq8{technique:Technique, attack1:A1, goal1:Goal1,
 
 % --- Vulnerability, impact, risk (CQ9-CQ15) -- bare-tag answers ---
 
-% CQ9 (ID.RA-01) What vulnerabilities are associated with an asset?
+% CQ9  What vulnerabilities are associated with an asset?
 cq9(Asset, Vulnerability) :-
     biLink(weakens, weakenedAsset, Asset, weakeningVuln, Vulnerability).
 
-% CQ10 (ID.RA-07/08) What vulnerabilities are exploitable by attack plans?
+% CQ10  What vulnerabilities are exploitable by attack plans?
 cq10(AttackPlan, Vulnerability) :-
     biLink(basedOn, causedBy, AttackPlan, causes, Attack),
     biLink(exploits, exploitingAttack, Attack, exploitedVuln, Vulnerability).
 
-% CQ11 (DE.AE-02) What attack path could negatively influence security
-%      objectives?  -- attack -> loss event -> loss situation -> value harmed.
+% CQ11  What attack path could negatively influence security
+%      objectives? 
 cq11(Attack, LossEvent, LossSituation, SecurityObjective) :-
     biLink(causes, causes, Attack, causedBy, LossEvent),
     biLink(bringsAbout, bringsAbout, LossEvent, broughtAboutBy, LossSituation),
     biLink(hurts, hurts, LossSituation, hurtBy, SecurityObjective).
 
-% CQ12 (RS.AN-03) What vulnerability or threat source originates a given
+% CQ12  What vulnerability or threat source originates a given
 %      adverse (loss) event?  Origin is `vulnerability` or `threatActor`.
 cq12(LossEvent, vulnerability, Vulnerability) :-
     biLink(causes, causes, Attack, causedBy, LossEvent),
@@ -357,33 +337,33 @@ cq13(Attack, ValueComponent, Asset) :-
     biLink(hurts, hurts, LossSituation, hurtBy, ValueComponent),
     biLink(characterizedBy, characterizes, ValueComponent, characterizedBy, Asset).
 
-% CQ14 (ISO 6.4.3.3/7.3.3) What is the estimated likelihood of a specific
+% CQ14  What is the estimated likelihood of a specific
 %      attack scenario (attack plan)?
 cq14(AttackPlan, Likelihood) :-
     instanceOf(AttackPlan, attackPlan),
     attr(AttackPlan, likelihood, Likelihood).
 
-% CQ15 (ISO 6.4.3.4/7.3.4) What is the level of risk for a given risk
+% CQ15  What is the level of risk for a given risk
 %      experience (risk assessment)?
 cq15(RiskExperience, Level) :-
     instanceOf(RiskExperience, experienceRiskAssessment),
     attr(RiskExperience, level, Level).
 
 % =====================================================================
-% E. Example goals
+% E. Queries to run  --  copy-paste into the Prolog console
 % =====================================================================
 %   ?- cq1(Asset, Type).
-%   ?- cq2(corpData, Value).
+%   ?- cq2(itDepartment, Value).
 %   ?- cq3(Sa, Ba).
 %   ?- cq4(Actor, Answer).
-%   ?- cq5(attacker01, Answer).
+%   ?- cq5(blacksuitAttacker, Answer).
 %   ?- cq6(blacksuitPlan, Answer).
 %   % CQ7 -- shared 3-step prefix is ambiguous: two candidate plans
 %   ?- cq7([atk_driveby, atk_c2, atk_autostart], Answer).
 %   % CQ7 -- one more step disambiguates: only the BlackSuit plan remains
 %   ?- cq7([atk_driveby, atk_c2, atk_autostart, atk_filediscovery], Answer).
 %   ?- cq8(Answer).
-%   ?- cq9(emp01, Vuln).
+%   ?- cq9(employee, Vuln).
 %   ?- cq10(blacksuitPlan, Vuln).
 %   ?- cq11(Attack, Le, Ls, Objective).
 %   ?- cq12(le_encrypt, Origin, Source).
