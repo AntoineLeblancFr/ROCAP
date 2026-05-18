@@ -1,40 +1,20 @@
 % =====================================================================
-% meta-model.pl
 %
-% UML/OntoUML meta-modelling framework + ROCADe meta-model.
-%
-% HAND-CODED EDITION
-% ------------------
-% Unlike the earlier `*_decl/N` + `*_dict/2` generator design, every
-% UML/OntoUML element here is asserted DIRECTLY as a fully-expanded dict
-% fact:  class/1, role/1, assoc/1, ontoUMLInstance/1, ontoUMLLink/1
-% (and, in example.pl, object/1 and link/1).
+% ROCADe meta-model.
 %
 % Dict shapes
-%   class dict       Tag{super:[ClassDict...], ontoUML:Stereo}
+%   class dict       Tag{super:[ClassDict...], ontoUML:Stereotype}
 %   role dict        Tag{minCard:Int, maxCard:Int, type:ClassDict|atom
 %                        [, endOf:AssocDict]}
 %   slot dict        RoleTag{value:ObjectDict}
-%   assoc dict       Tag{roles:[RoleDict...], ontoUML:Stereo, super:[AssocDict...]}
+%   assoc dict       Tag{roles:[RoleDict...], ontoUML:Stereotype, super:[AssocDict...]}
 %   object dict      Tag{classes:[ClassDict...], name:String}
 %   link dict        Tag{slots:[SlotDict...]}
-%   ontoUMLInstance  Tag{source:ClassDict, target:ClassDict, ontoUML:Stereo}
+%   ontoUMLInstance  Tag{source:ClassDict, target:ClassDict, ontoUML:Stereotype}
 %   ontoUMLLink      Tag{metaInstantiations:[OntoUMLInstanceDict...]}
 %
-% A nested super/class dict is repeated verbatim wherever it occurs --
-% that is the price of hand-coded (non-generated) facts.  Roles nested
-% inside an assoc dict's `roles` list deliberately OMIT `endOf` (the
-% standalone role/1 facts keep it) so the structure stays finite.
-%
-% Unary membership predicates (no N-ary needed -- relations live inside
-% the dicts):  class/1 role/1 assoc/1 comp/1 aggreg/1 object/1 slot/1
-%              link/1 ontoUMLInstance/1 ontoUMLLink/1
-% Binary derivation predicates: instanceOf/2 superOf/2 metaInstanceOf/2
-%              multiLevelInstanceOf/2
 % =====================================================================
 
-% object/1 and link/1 facts are supplied by example.pl; declare them so
-% the slot/1 rule below may reference link/1 before example.pl is loaded.
 :- discontiguous object/1.
 :- discontiguous link/1.
 
@@ -128,11 +108,6 @@ class(exfiltrationOverWebServiceT1567{super: [exfiltration], ontoUML: type}).
 
 % =====================================================================
 % B. UML role dicts  --  role(RoleDict)
-% =====================================================================
-% Standalone role facts include `endOf` (the assoc the role ends).
-% =====================================================================
-% B. UML role dicts  --  role(RoleDict)
-%    type / endOf now reference a class-tag / assoc-tag.
 % =====================================================================
 
 % Loss Situation -> Cybersecurity Value Component
@@ -231,9 +206,8 @@ assoc(partOf{roles: [
   composedOf{minCard: 0, maxCard: *, type: attackTactic, endOf: attackTechnique}
 ], super: []}).
 
-
 % =====================================================================
-%  Diagram 3  --  kill-chain ordering of ATT&CK tactics
+%  C. kill-chain ordering of ATT&CK tactics
 % =====================================================================
 
 % Reconnaissance -> Resource Development   (historicalDependence)
@@ -349,7 +323,7 @@ assoc(composes{roles: [
 ], super: []}).
 
 % =====================================================================
-% D. comp/1 and aggreg/1  --  filtered views over assoc/1
+% D. comp/1 and aggreg/1  --  
 % =====================================================================
 comp(Assoc)   :- assoc(Assoc),   get_dict(ontoUML, Assoc, composition).
 aggreg(Assoc) :- assoc(Assoc),   get_dict(ontoUML, Assoc, aggregation).
