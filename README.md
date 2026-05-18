@@ -84,10 +84,11 @@ The OWL ontology can be opened using ontology engineering tools such as:
 
 ## Prolog Reasoning
 
-To run the prolog queries, be sure to have both files next to each other.Open A terminal and launch SWI-Prolog and run: 
+To execute the Prolog queries, ensure that both files are located in the same directory.
+Open a terminal, launch SWI-Prolog, and load the ontology with:
 
 ```prolog
 ?- [rocap].
 ```
 
-Queries can then be executed, they can be found at then end of the blacksuit_and_espionage_example.pl file.
+Once loaded, the queries can be executed directly. Example queries are provided at the end of the blacksuit_and_espionage_example.pl file.
