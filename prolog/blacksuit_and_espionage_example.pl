@@ -1,5 +1,4 @@
 % =====================================================================
-% example_blacksuit.pl
 %
 % ROCA instance model -- "Fake Zoom -> BlackSuit Ransomware",
 % extended with a second, long-term espionage attack plan.
