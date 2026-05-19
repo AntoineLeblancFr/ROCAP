@@ -1,6 +1,6 @@
 % =====================================================================
 %
-% ROCADe meta-model.
+% ROCAP meta-model.
 %
 % Dict shapes
 %   class dict       Tag{super:[ClassDict...], ontoUML:Stereotype}
