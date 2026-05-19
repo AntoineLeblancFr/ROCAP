@@ -74,11 +74,7 @@ Document describing the enrichment of ROCAP with PAPO.
 
 ## OWL Ontology
 
-The OWL ontology can be opened using ontology engineering tools such as:
-
-* Protégé
-* TopBraid Composer
-* Any OWL-compatible semantic web framework
+The OWL ontology can be opened using ontology engineering tools such as Protégé
 
 ---
 
