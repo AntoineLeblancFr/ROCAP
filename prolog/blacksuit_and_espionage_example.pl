@@ -1,6 +1,6 @@
 % =====================================================================
 %
-% ROCA instance model -- "Fake Zoom -> BlackSuit Ransomware",
+% ROCAP instance model -- "Fake Zoom -> BlackSuit Ransomware",
 % extended with a second, long-term espionage attack plan.
 % Source scenario: thedfirreport.com/2025/03/31/fake-zoom-ends-in-blacksuit-ransomware
 %
