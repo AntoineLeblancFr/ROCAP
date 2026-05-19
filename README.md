@@ -17,12 +17,12 @@ ROCAP is a theoretically-grounded and operationally-aligned Reference Ontology o
 │   ├── rocap.pl
 │   └── blacksuit_and_espionage_example.pl
 │
-├── figures/
-│   ├── rocap.pl
-│   ├── rocap.pl
-│   ├── rocap.pl
-│   ├── rocap.pl
-│   └── blacksuit_and_espionage_example.pl
+├── ROCAP_Figures/
+│   ├── BlackSuit Ransomware Campaign simplified.jpg
+│   ├── Long-Term Espionage Scenario.jpg
+│   ├── ROCAP Attack Planning Attack Dependency Sub-Ontology.jpg
+│   ├── ROCAP Attack Planning Sub-Ontology.jpg
+│   └── ROCAP Cybersecurity Risk Asessment Sub-Ontology.jpg
 │
 ├── ROCAP.vpp
 │
@@ -54,6 +54,13 @@ Contains the Prolog formalization of ROCAP and an executable example.
   Example demonstrating how ROCAP can be instantiated and queried using Prolog.
 
 ---
+
+## `ROCAP_Figures/`
+
+Contains the images of the ROCAP models.
+
+---
+
 
 ## `ROCAP.vpp`
 
