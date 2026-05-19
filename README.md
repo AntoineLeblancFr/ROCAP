@@ -17,6 +17,13 @@ ROCAP is a theoretically-grounded and operationally-aligned Reference Ontology o
 │   ├── rocap.pl
 │   └── blacksuit_and_espionage_example.pl
 │
+├── figures/
+│   ├── rocap.pl
+│   ├── rocap.pl
+│   ├── rocap.pl
+│   ├── rocap.pl
+│   └── blacksuit_and_espionage_example.pl
+│
 ├── ROCAP.vpp
 │
 ├── ROCAP_CQs_Traceability.xlsx
