@@ -71,11 +71,15 @@ gufo:participatedIn rdf:type owl:ObjectProperty .
 
 
 ###  http://rocap.com#causedBy_1
+### An Attack is a manifestation of the Intention it realizes. In UFO-C the
+### action-to-intention relation is glossed "caused by"; we keep it as the
+### manifestation reading (an Action manifests the Intention of which it is the
+### manifestation), consistent with :manifestsAttackPlan above.
 :causedBy_1 rdf:type owl:ObjectProperty ;
             rdfs:subPropertyOf :causedBy ;
             rdfs:domain :Attack ;
             rdfs:range :Intention ;
-            rdfs:label "caused by"@en .
+            rdfs:label "manifestation of"@en .
 
 
 ###  http://rocap.com#causes_2
@@ -92,19 +96,23 @@ gufo:participatedIn rdf:type owl:ObjectProperty .
                   rdfs:label "countermeasure to"@en .
 
 
-###  http://rocap.com#creates
-:creates rdf:type owl:ObjectProperty ;
+###  http://rocap.com#participatesInAction
+### (was :creates -- ROSE "creates" replaced by UFO participation, Figs. 1 & 3:
+###  an Agent PARTICIPATES IN an Action; it does not "create" it)
+:participatesInAction rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf gufo:participatedIn ;
          rdfs:domain :UFOAgent ;
          rdfs:range :UFOAction ;
-         rdfs:label "creates"@en .
+         rdfs:label "participates in"@en .
 
 
-###  http://rocap.com#creates_1
-:creates_1 rdf:type owl:ObjectProperty ;
-           rdfs:subPropertyOf :creates ;
+###  http://rocap.com#participatesInAttack
+### (was :creates_1 -- the Attacker PARTICIPATES IN the Attack, Figs. 1 & 3)
+:participatesInAttack rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf :participatesInAction ;
            rdfs:domain :Attacker ;
            rdfs:range :Attack ;
-           rdfs:label "creates"@en .
+           rdfs:label "participates in"@en .
 
 
 ###  http://rocap.com#designedBy
@@ -346,18 +354,32 @@ gufo:participatedIn rdf:type owl:ObjectProperty .
                           rdfs:label  "offensively engaged by"@en .
 
 
-###  http://rocap.com#hasAttackPlan
-:hasAttackPlan rdf:type owl:ObjectProperty ;
+###  http://rocap.com#manifestsAttackPlan
+### (was :hasAttackPlan, mislabelled "caused by" -- per GG, an Attack is the
+###  MANIFESTATION of the Attack Plan whose committed course of action it realizes)
+:manifestsAttackPlan rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf gufo:manifestedIn ;
                rdfs:domain :Attack ;
                rdfs:range  :AttackPlan ;
-               rdfs:label  "caused by"@en .
+               rdfs:label  "manifests"@en .
 
 
-###  http://rocap.com#hasSupportingAsset
-:hasSupportingAsset rdf:type owl:ObjectProperty ;
+###  http://rocap.com#supportedBy
+### (was :hasSupportingAsset, mislabelled "composed of" -- the Business/Supporting
+###  Asset relation is a FUNCTIONAL DEPENDENCE, not parthood, Fig. 1 "supported by")
+:supportedBy rdf:type owl:ObjectProperty ;
                     rdfs:domain :BusinessAsset ;
                     rdfs:range  :SupportingAsset ;
-                    rdfs:label  "composed of"@en .
+                    rdfs:label  "supported by"@en .
+
+
+###  http://rocap.com#basedOn
+### The Attack Plan (a closed intention) is BASED ON a Complex Action Type -- the
+### structured course of action it commits to instantiating (Fig. 2).
+:basedOn rdf:type owl:ObjectProperty ;
+         rdfs:domain :AttackPlan ;
+         rdfs:range  :ComplexActionType ;
+         rdfs:label  "based on"@en .
 
 
 ###  http://rocap.com#hasCybersecurityValueComponent
@@ -1008,6 +1030,8 @@ gufo:SubKind rdf:type owl:Class .
                    rdfs:subClassOf gufo:ConcreteIndividualType .
 
 ###  http://rocap.com#SupportingAsset
+### A role played by an Endurant (physical or not): a server, an operating system,
+### a virtual machine, a deployed business application, or a human resource.
 :SupportingAsset rdf:type owl:Class ;
                  rdfs:subClassOf :RiskEnabler ,
                                  [ rdf:type owl:Restriction ;
@@ -1027,23 +1051,37 @@ gufo:SubKind rdf:type owl:Class .
 
 
 ###  http://rocap.com#AttackPlan
+### A closed intention (a UFO mode) that INHERES IN the Attacker (Fig. 1)
+### and is MANIFESTED BY the Attacks realizing its committed course of action (Fig. 3).
 :AttackPlan rdf:type owl:Class ;
             rdfs:subClassOf :ClosedIntention ,
                             gufo:IntrinsicMode ,
                             [ rdf:type owl:Restriction ;
                               owl:onProperty gufo:inheresIn ;
                               owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                              owl:onClass :Attack
+                              owl:onClass :Attacker
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty [ owl:inverseOf :manifestsAttackPlan ] ;
+                              owl:someValuesFrom :Attack
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty :basedOn ;
+                              owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                              owl:onClass :ComplexActionType
                             ] .
 
 
 ###  http://rocap.com#BusinessAsset
+### An organizational component bearing value. Its dependence on Supporting Assets
+### is FUNCTIONAL and CONTINGENT (Fig. 1): a Business Asset can exist without
+### supporting assets but cannot realize its value without them -- hence
+### someValuesFrom rather than a min-1 cardinality.
 :BusinessAsset rdf:type owl:Class ;
                rdfs:subClassOf :ObjectAtRisk ,
                                [ rdf:type owl:Restriction ;
-                                 owl:onProperty :hasSupportingAsset ;
-                                 owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                 owl:onClass :SupportingAsset
+                                 owl:onProperty :supportedBy ;
+                                 owl:someValuesFrom :SupportingAsset
                                ] ,
                                [ rdf:type owl:Restriction ;
                                  owl:onProperty :hasCybersecurityValueComponent ;
@@ -1059,6 +1097,14 @@ gufo:SubKind rdf:type owl:Class .
                                                owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                                owl:onClass :ProtectedSubject
                                              ] .
+
+
+###  http://rocap.com#ComplexActionType
+### The structured course of action to which the Attack Plan commits (Fig. 2).
+### Its instances are structured patterns of events (scripts); the individual
+### attack steps that instantiate them stand in gufo:historicallyDependsOn.
+:ComplexActionType rdf:type owl:Class ;
+                   rdfs:subClassOf gufo:ConcreteIndividualType .
 
 
 ###  http://rocap.com#AttackType
@@ -1453,10 +1499,11 @@ gufo:SubKind rdf:type owl:Class .
 #################################################################
 
 :ClosedIntention             rdf:type owl:NamedIndividual , gufo:Category .
-:AttackPlan                  rdf:type owl:NamedIndividual , gufo:Kind .
+:AttackPlan                  rdf:type owl:NamedIndividual , gufo:Category .
 :BusinessAsset               rdf:type owl:NamedIndividual , gufo:RoleMixin .
 :CybersecurityValueComponent rdf:type owl:NamedIndividual , gufo:Kind .
 :AttackType                  rdf:type owl:NamedIndividual .
+:ComplexActionType           rdf:type owl:NamedIndividual .
 :CAPECPattern                rdf:type owl:NamedIndividual .
 :ATTCKTactic                 rdf:type owl:NamedIndividual .
 :ATTCKTechnique              rdf:type owl:NamedIndividual .
@@ -1699,6 +1746,8 @@ gufo:SubKind rdf:type owl:Class .
 
 :AttackType                  rdfs:label "Attack Type"@en ;
                              gufo:categorizes :Attack .
+
+:ComplexActionType           rdfs:label "Complex Action Type"@en .
 
 :CAPECPattern                rdfs:label "CAPEC::Pattern"@en .
 
