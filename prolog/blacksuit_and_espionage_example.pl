@@ -1,4 +1,6 @@
 % =====================================================================
+% example_blacksuit_V3.pl
+%
 % ROCAP instance model -- "Fake Zoom -> BlackSuit Ransomware",
 % extended with a second, long-term espionage attack plan.
 % Source scenario: thedfirreport.com/2025/03/31/fake-zoom-ends-in-blacksuit-ransomware
@@ -96,7 +98,7 @@ object(atk_espcollect{classes: [attack, dataFromLocalSystemT1005], name: "Recurr
 % --- Threat actors, capabilities, attack plans ---
 object(blacksuitOperator{classes: [attacker], name: "BlackSuit Ransomware Operator"}).
 object(blacksuitCapability{classes: [threatCapability], name: "Ransomware Deployment and Extortion Capability"}).
-object(blacksuitPlan_bs{classes: [attackPlan], name: "BlackSuit Ransomware Campaign (Fake Zoom Vector)", likelihood: likely, steps: [atk_driveby, atk_c2, atk_autostart, atk_filediscovery, atk_collect, atk_archive, atk_encrypt]}).
+object(blacksuitPlan_bs{classes: [attackPlan], name: "BlackSuit Ransomware Campaign (Fake Zoom Vector)", likelihood: likely, steps: [atk_driveby, atk_c2, atk_autostart, atk_filediscovery, atk_collect, atk_archive, atk_encrypt, atk_exfil]}).
 object(espionageOperator{classes: [attacker], name: "Espionage Threat Actor"}).
 object(espionageCapability{classes: [threatCapability], name: "Stealthy Long-Term Access Capability"}).
 object(longTermEspionagePlan{classes: [attackPlan], name: "Long-Term Espionage Campaign", likelihood: possible, steps: [atk_driveby, atk_c2, atk_autostart, atk_espcollect]}).
